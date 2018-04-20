@@ -22,7 +22,7 @@ class WordWorm(object):
     self.tokenFrequency = {}
     """dictionary of token count frequency; key is the token count, value is the frequency"""
 
-    self.startWithVowel = -1.0
+    self.startWithVowel = 0
     """ratio of words that start with a vowel"""
 
     self.vowelTokens = 'aeiouy'
