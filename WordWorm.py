@@ -29,52 +29,43 @@ class WordWorm(object):
     """characters that match any of these tokens will be considered a vowel"""
 
   def analyze(self, words):
+    # remove duplicates
+    words = list(set(words))
 
-    # generate the re
+    # compile the regex's
     vowel_re = re.compile('([{}]+)'.format(self.vowelTokens))
     consonant_re = re.compile('([^{}]+)'.format(self.vowelTokens))
 
-    # containers
-    vowels = {}
-    consonants = {}
-    tokenCount = {}
-    startWithVowel = 0
-
-    # remove duplicates
-    words = list(set(words))
-    wordCount = len(words)
+    # stats
+    vowels = {}            # key: vowel token;      value: number of times seen
+    consonants = {}        # key: constonant token; value: number of times seen
+    tokenFrequency = {}    # key: number of tokens in a single word
+                           # value: count of words with same number of tokens
+    startWithVowel = 0     # count of words that start with a vowel
+    wordCount = len(words) # total number of words
 
     # analyze
     for word in words:
-      tokens = 0 # count tokens in word
+      tokensInWord = 0
       word = word.lower()
 
       if vowel_re.match(word[0]):
         startWithVowel += 1
 
-      for match in vowel_re.findall(word):
-        self._count(vowels, match)
-        tokens += 1
+      tokensInWord += self._processMatches(word, vowel_re, vowels)
+      tokensInWord += self._processMatches(word, consonant_re, consonants)
+      self._count(tokenFrequency, tokensInWord)
 
-      for match in consonant_re.findall(word):
-        self._count(consonants, match)
-        tokens += 1
-
-      self._count(tokenCount, tokens)
-
-    # normalize
-    for word, count in vowels.items():
-      vowels[word] = count / float(wordCount)
-    for word, count in consonants.items():
-      consonants[word] = count / float(wordCount)
-    for token, count in tokenCount.items():
-      tokenCount[token] = count / float(wordCount)
-    startWithVowel = startWithVowel / float(len(words))
+    # normalize counts
+    self._normalize(vowels, wordCount)
+    self._normalize(consonants, wordCount)
+    self._normalize(tokenFrequency, wordCount)
+    startWithVowel = startWithVowel / float(wordCount)
 
     # set members with updated info
     self.vowels = vowels
     self.consonants = consonants
-    self.tokenFrequency = tokenCount
+    self.tokenFrequency = tokenFrequency
     self.startWithVowel = startWithVowel
 
   def toString(self):
@@ -91,6 +82,20 @@ class WordWorm(object):
 
   def __repr__(self):
     return self.toString()
+
+  @staticmethod
+  def _processMatches(word, re, container):
+    tokens = 0
+    for match in re.findall(word):
+      WordWorm._count(container, match)
+      tokens += 1
+
+    return tokens
+
+  @staticmethod
+  def _normalize(container, wordCount):
+    for word, count in container.items():
+      container[word] = count / float(wordCount)
 
   @staticmethod
   def _formatTable(table):
