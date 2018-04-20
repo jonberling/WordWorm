@@ -77,6 +77,7 @@ class WordWorm(object):
     s.append(self._formatTable(self.consonants))
     s.append('token frequency:')
     s.append(self._formatTable(self.tokenFrequency))
+    s.append('Radio of words that start with a vowel: {:.5f}'.format(wordWorm.startWithVowel))
 
     return "\n".join(s)
 
@@ -132,6 +133,5 @@ if __name__ == '__main__':
   wordWorm.analyze(words)
 
   print(wordWorm)
-  print('Radio of words that start with a vowel: {:.5f}'.format(wordWorm.startWithVowel))
 
   sys.exit(0)
